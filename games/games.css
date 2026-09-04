@@ -150,6 +150,8 @@
     touch-action: none;      /* let swipes steer, not scroll */
     margin: 0.8em 0;
 }
+/* mirrors .sudoku-bar .timer */
+.sudoku-bar .snake-score { color: var(--folder); font-style: normal; font-weight: bold; }
 .snake-pad {
     display: grid;
     grid-template-columns: repeat(3, 3.2em);

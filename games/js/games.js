@@ -809,7 +809,7 @@ const Snake = {
         const bar = document.createElement('div');
         bar.className = 'sudoku-bar';
         const stats = Store.get(KEYS.snake, { best: 0, played: 0 });
-        bar.innerHTML = `<span class="comment">score <span id="snake-score" style="color:var(--folder);font-style:normal;font-weight:bold">0</span>` +
+        bar.innerHTML = `<span class="comment">score <span class="snake-score" id="snake-score">0</span>` +
             ` · best ${stats.best || 0}</span>`;
         const newBtn = document.createElement('button');
         newBtn.className = 'btn';
