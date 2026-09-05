@@ -946,7 +946,7 @@ const Snake = {
     },
 
     onKey(e) {
-        if (this.state === 'over' && (e.key === ' ' || e.key === 'Enter')) {
+        if (this.state === 'over' && e.key === 'Enter') {
             e.preventDefault();
             this.newGame();
             return;
@@ -1116,7 +1116,7 @@ const Snake = {
             line(`score ${this.score}`, cy - c * 0.6, '#ffd700', 1.3);
             if (this.wasRecord) line('new best!', cy + c * 0.9, '#c3e88d', 0.8);
             else line(`best ${stats.best}`, cy + c * 0.9, '#5c6370', 0.7);
-            line('space or New to restart', cy + c * 2.4, '#82aaff', 0.65);
+            line('Enter or New to restart', cy + c * 2.4, '#82aaff', 0.65);
         }
     }
 };
