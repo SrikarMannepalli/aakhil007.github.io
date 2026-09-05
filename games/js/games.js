@@ -804,7 +804,9 @@ const Snake = {
         const status = document.createElement('div');
         status.className = 'comment';
         status.id = 'snake-status';
-        status.textContent = '# press ↑ ↓ ← → or WASD to start';
+        status.textContent = this.isTouch()
+            ? '# swipe or tap ▶ to start'
+            : '# press ↑ ↓ ← → or WASD to start';
 
         const bar = document.createElement('div');
         bar.className = 'sudoku-bar';
@@ -942,7 +944,7 @@ const Snake = {
         if (this.state !== 'running') return;
         this.state = 'paused';
         this.stopLoop();
-        this.setStatus('# paused — press P to resume');
+        this.setStatus(this.isTouch() ? '# paused — tap ▶ to resume' : '# paused — press P to resume');
         this.setPauseLabel('Resume');
         this.syncCenter();
         this.draw();
@@ -961,6 +963,12 @@ const Snake = {
     togglePause() {
         if (this.state === 'running') this.pause();
         else if (this.state === 'paused') this.resume();
+    },
+
+    // Same query the CSS uses to show the d-pad, so hints always
+    // match which controls are actually visible.
+    isTouch() {
+        return window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     },
 
     setStatus(text) {
@@ -1137,20 +1145,25 @@ const Snake = {
             ctx.font = `bold ${Math.round(c * scale)}px ${mono}`;
             ctx.fillText(text, cx, y);
         };
+        const touch = this.isTouch();
         if (this.state === 'idle') {
             line('# snake', cy - c * 1.4, '#5c6370', 0.75);
-            line('press ↑ ↓ ← →', cy, '#c3e88d', 0.8);
-            line('or WASD to start', cy + c * 1.4, '#5c6370', 0.7);
+            if (touch) {
+                line('swipe or tap ▶ to start', cy, '#c3e88d', 0.8);
+            } else {
+                line('press ↑ ↓ ← →', cy, '#c3e88d', 0.8);
+                line('or WASD to start', cy + c * 1.4, '#5c6370', 0.7);
+            }
         } else if (this.state === 'paused') {
             line('# paused', cy - c * 0.7, '#c3e88d', 0.9);
-            line('press P to resume', cy + c * 1.1, '#5c6370', 0.7);
+            line(touch ? 'tap ▶ to resume' : 'press P to resume', cy + c * 1.1, '#5c6370', 0.7);
         } else if (this.state === 'over') {
             const stats = Store.get(KEYS.snake, { best: 0, played: 0 });
             line('# game over', cy - c * 2.2, '#5c6370', 0.75);
             line(`score ${this.score}`, cy - c * 0.6, '#ffd700', 1.3);
             if (this.wasRecord) line('new best!', cy + c * 0.9, '#c3e88d', 0.8);
             else line(`best ${stats.best}`, cy + c * 0.9, '#5c6370', 0.7);
-            line('Enter or New to restart', cy + c * 2.4, '#82aaff', 0.65);
+            line(touch ? 'tap ↻ to restart' : 'Enter or New to restart', cy + c * 2.4, '#82aaff', 0.65);
         }
     }
 };
