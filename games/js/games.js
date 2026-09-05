@@ -804,7 +804,9 @@ const Snake = {
         const status = document.createElement('div');
         status.className = 'comment';
         status.id = 'snake-status';
-        status.textContent = '# press ↑ ↓ ← → or WASD to start';
+        status.textContent = this.isTouch()
+            ? '# swipe or tap ▶ to start'
+            : '# press ↑ ↓ ← → or WASD to start';
 
         const bar = document.createElement('div');
         bar.className = 'sudoku-bar';
@@ -837,6 +839,7 @@ const Snake = {
         canvas.height = px;
         this.cell = px / this.COLS;
         this.ctx = canvas.getContext('2d');
+        this.syncCenter();
     },
 
     backToArcade() {
@@ -873,10 +876,39 @@ const Snake = {
         const down = mk('▼', { x: 0, y: 1 });
         const left = mk('◀', { x: -1, y: 0 });
         const right = mk('▶', { x: 1, y: 0 });
-        [null, up, null, left, mk(''), right, null, down, null].forEach((b) => {
+
+        // Center: play / pause / resume / restart depending on state.
+        const center = document.createElement('button');
+        center.className = 'btn primary';
+        center.id = 'snake-center-btn';
+        center.onclick = () => this.centerAction();
+
+        [null, up, null, left, center, right, null, down, null].forEach((b) => {
             pad.appendChild(b || mk(''));
         });
         return pad;
+    },
+
+    centerAction() {
+        if (this.state === 'idle') this.start();
+        else if (this.state === 'running') this.pause();
+        else if (this.state === 'paused') this.resume();
+        else if (this.state === 'over') this.newGame();
+    },
+
+    // Label the d-pad center button for the current state.
+    syncCenter() {
+        const b = document.getElementById('snake-center-btn');
+        if (!b) return;
+        const map = {
+            idle: ['▶', 'play'],
+            running: ['❚❚', 'pause'],
+            paused: ['▶', 'resume'],
+            over: ['↻', 'restart']
+        };
+        const [label, aria] = map[this.state] || ['▶', 'play'];
+        b.textContent = label;
+        b.setAttribute('aria-label', aria);
     },
 
     // Swipes on the board steer the snake (canvas has touch-action: none).
@@ -899,10 +931,11 @@ const Snake = {
     },
 
     start(d) {
-        this.pushDir(d);
+        if (d) this.pushDir(d);
         this.state = 'running';
         this.setStatus('# go!');
         this.setPauseLabel('Pause');
+        this.syncCenter();
         this.startLoop();
         this.draw();
     },
@@ -911,8 +944,9 @@ const Snake = {
         if (this.state !== 'running') return;
         this.state = 'paused';
         this.stopLoop();
-        this.setStatus('# paused — press P to resume');
+        this.setStatus(this.isTouch() ? '# paused — tap ▶ to resume' : '# paused — press P to resume');
         this.setPauseLabel('Resume');
+        this.syncCenter();
         this.draw();
     },
 
@@ -921,6 +955,7 @@ const Snake = {
         this.state = 'running';
         this.setStatus('# go!');
         this.setPauseLabel('Pause');
+        this.syncCenter();
         this.startLoop();
         this.draw();
     },
@@ -928,6 +963,12 @@ const Snake = {
     togglePause() {
         if (this.state === 'running') this.pause();
         else if (this.state === 'paused') this.resume();
+    },
+
+    // Same query the CSS uses to show the d-pad, so hints always
+    // match which controls are actually visible.
+    isTouch() {
+        return window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     },
 
     setStatus(text) {
@@ -946,7 +987,7 @@ const Snake = {
     },
 
     onKey(e) {
-        if (this.state === 'over' && (e.key === ' ' || e.key === 'Enter')) {
+        if (this.state === 'over' && e.key === 'Enter') {
             e.preventDefault();
             this.newGame();
             return;
@@ -1053,6 +1094,7 @@ const Snake = {
         } else {
             this.setStatus(`# game over — score ${this.score} · best ${stats.best}`);
         }
+        this.syncCenter();
         this.draw();
     },
 
@@ -1103,20 +1145,25 @@ const Snake = {
             ctx.font = `bold ${Math.round(c * scale)}px ${mono}`;
             ctx.fillText(text, cx, y);
         };
+        const touch = this.isTouch();
         if (this.state === 'idle') {
             line('# snake', cy - c * 1.4, '#5c6370', 0.75);
-            line('press ↑ ↓ ← →', cy, '#c3e88d', 0.8);
-            line('or WASD to start', cy + c * 1.4, '#5c6370', 0.7);
+            if (touch) {
+                line('swipe or tap ▶ to start', cy, '#c3e88d', 0.8);
+            } else {
+                line('press ↑ ↓ ← →', cy, '#c3e88d', 0.8);
+                line('or WASD to start', cy + c * 1.4, '#5c6370', 0.7);
+            }
         } else if (this.state === 'paused') {
             line('# paused', cy - c * 0.7, '#c3e88d', 0.9);
-            line('press P to resume', cy + c * 1.1, '#5c6370', 0.7);
+            line(touch ? 'tap ▶ to resume' : 'press P to resume', cy + c * 1.1, '#5c6370', 0.7);
         } else if (this.state === 'over') {
             const stats = Store.get(KEYS.snake, { best: 0, played: 0 });
             line('# game over', cy - c * 2.2, '#5c6370', 0.75);
             line(`score ${this.score}`, cy - c * 0.6, '#ffd700', 1.3);
             if (this.wasRecord) line('new best!', cy + c * 0.9, '#c3e88d', 0.8);
             else line(`best ${stats.best}`, cy + c * 0.9, '#5c6370', 0.7);
-            line('space or New to restart', cy + c * 2.4, '#82aaff', 0.65);
+            line(touch ? 'tap ↻ to restart' : 'Enter or New to restart', cy + c * 2.4, '#82aaff', 0.65);
         }
     }
 };
