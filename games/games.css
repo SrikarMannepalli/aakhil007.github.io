@@ -138,6 +138,34 @@
 .ttt-cell:not(.x):not(.o):hover { background: #fff6c2; }
 .ttt-cell.ttt-win { background: #b9f6c1; }
 
+/* ---- Snake ---- */
+.snake-board {
+    display: block;
+    width: 100%;
+    max-width: 338px;
+    aspect-ratio: 1 / 1;
+    border: 2px solid #3a414d;
+    border-radius: 8px;
+    background: #181c20;
+    touch-action: none;      /* let swipes steer, not scroll */
+    margin: 0.8em 0;
+}
+/* mirrors .sudoku-bar .timer */
+.sudoku-bar .snake-score { color: var(--folder); font-style: normal; font-weight: bold; }
+.snake-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 3.2em);
+    grid-auto-rows: 3.2em;
+    gap: 0.35em;
+    justify-content: center;
+    margin: 0.6em 0;
+}
+.snake-pad .btn { padding: 0; font-size: 1.1em; }
+/* the d-pad is for touch screens only */
+@media (pointer: fine) {
+    .snake-pad { display: none; }
+}
+
 /* ---- Win celebration ---- */
 .confetti-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
 .confetti {
