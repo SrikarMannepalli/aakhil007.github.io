@@ -837,6 +837,7 @@ const Snake = {
         canvas.height = px;
         this.cell = px / this.COLS;
         this.ctx = canvas.getContext('2d');
+        this.syncCenter();
     },
 
     backToArcade() {
@@ -873,10 +874,39 @@ const Snake = {
         const down = mk('▼', { x: 0, y: 1 });
         const left = mk('◀', { x: -1, y: 0 });
         const right = mk('▶', { x: 1, y: 0 });
-        [null, up, null, left, mk(''), right, null, down, null].forEach((b) => {
+
+        // Center: play / pause / resume / restart depending on state.
+        const center = document.createElement('button');
+        center.className = 'btn primary';
+        center.id = 'snake-center-btn';
+        center.onclick = () => this.centerAction();
+
+        [null, up, null, left, center, right, null, down, null].forEach((b) => {
             pad.appendChild(b || mk(''));
         });
         return pad;
+    },
+
+    centerAction() {
+        if (this.state === 'idle') this.start();
+        else if (this.state === 'running') this.pause();
+        else if (this.state === 'paused') this.resume();
+        else if (this.state === 'over') this.newGame();
+    },
+
+    // Label the d-pad center button for the current state.
+    syncCenter() {
+        const b = document.getElementById('snake-center-btn');
+        if (!b) return;
+        const map = {
+            idle: ['▶', 'play'],
+            running: ['❚❚', 'pause'],
+            paused: ['▶', 'resume'],
+            over: ['↻', 'restart']
+        };
+        const [label, aria] = map[this.state] || ['▶', 'play'];
+        b.textContent = label;
+        b.setAttribute('aria-label', aria);
     },
 
     // Swipes on the board steer the snake (canvas has touch-action: none).
@@ -899,10 +929,11 @@ const Snake = {
     },
 
     start(d) {
-        this.pushDir(d);
+        if (d) this.pushDir(d);
         this.state = 'running';
         this.setStatus('# go!');
         this.setPauseLabel('Pause');
+        this.syncCenter();
         this.startLoop();
         this.draw();
     },
@@ -913,6 +944,7 @@ const Snake = {
         this.stopLoop();
         this.setStatus('# paused — press P to resume');
         this.setPauseLabel('Resume');
+        this.syncCenter();
         this.draw();
     },
 
@@ -921,6 +953,7 @@ const Snake = {
         this.state = 'running';
         this.setStatus('# go!');
         this.setPauseLabel('Pause');
+        this.syncCenter();
         this.startLoop();
         this.draw();
     },
@@ -1053,6 +1086,7 @@ const Snake = {
         } else {
             this.setStatus(`# game over — score ${this.score} · best ${stats.best}`);
         }
+        this.syncCenter();
         this.draw();
     },
 
