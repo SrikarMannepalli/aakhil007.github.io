@@ -21,7 +21,7 @@ A personal site published via GitHub Pages at **aakhil.in** (`CNAME`). Static HT
 - Copy speaks shell: `#`-prefixed comments, `./game` to launch, `cd ~` / `cd ..` to navigate.
 
 ### Games architecture (`games/js/games.js`)
-Follow the existing modules — `Sudoku`, `TicTacToe`, `Snake`. When adding a game:
+Follow the existing modules — `Sudoku`, `TicTacToe`, `Snake`, `G2048`. When adding a game:
 1. Add a `KEYS` entry (`aakhil.<game>.stats`) and persist via the `Store` helper — never call `localStorage` directly.
 2. Add a tile in `Games.renderArcade()` and a `launch<Name>()` method.
 3. Game modules are plain objects: `mount(container, onExit)`, their own `backToArcade()`, optional setup/win screens.
