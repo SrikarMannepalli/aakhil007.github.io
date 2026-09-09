@@ -166,6 +166,85 @@
     .snake-pad { display: none; }
 }
 
+/* ---- 2048 ---- */
+.g2048-board {
+    position: relative;
+    width: 100%;
+    max-width: 338px;
+    aspect-ratio: 1 / 1;
+    background: #20242b;
+    border: 2px solid #3a414d;
+    border-radius: 8px;
+    touch-action: none;      /* let swipes steer, not scroll */
+    margin: 0.8em 0;
+}
+.g2048-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #2c313a;
+    border-radius: 6px;
+}
+.g2048-tile {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    transition: transform 110ms ease-in-out;
+    will-change: transform;
+}
+.g2048-tile-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #181c20;
+}
+/* mirrors .sudoku-bar .timer */
+.sudoku-bar .g2048-score { color: var(--folder); font-style: normal; font-weight: bold; }
+/* value ramp: greys → greens → blue → yellow/gold → red → glow */
+.tile-v2 .g2048-tile-inner { background: #2c313a; color: #c3e88d; }
+.tile-v4 .g2048-tile-inner { background: #343b45; color: #c3e88d; }
+.tile-v8 .g2048-tile-inner { background: #1f4429; color: #c3e88d; }
+.tile-v16 .g2048-tile-inner { background: #27c93f; color: #10240f; }
+.tile-v32 .g2048-tile-inner { background: #82aaff; color: #101828; }
+.tile-v64 .g2048-tile-inner { background: #ffbd2e; color: #241a02; }
+.tile-v128 .g2048-tile-inner { background: #ffd700; color: #241d02; }
+.tile-v256 .g2048-tile-inner { background: #ff5f56; color: #28090a; }
+.tile-v512 .g2048-tile-inner { background: #ff5f56; color: #fff7f6; box-shadow: 0 0 12px rgba(255, 95, 86, 0.55); }
+.tile-v1024 .g2048-tile-inner { background: #ffbd2e; color: #241a02; box-shadow: 0 0 12px rgba(255, 189, 46, 0.55); }
+.tile-v2048 .g2048-tile-inner { background: #ffd700; color: #181c20; box-shadow: 0 0 16px rgba(255, 215, 0, 0.7); }
+.tile-super .g2048-tile-inner { background: #181c20; color: #fff; border: 2px solid #82aaff; box-shadow: 0 0 16px rgba(130, 170, 255, 0.7); }
+.g2048-tile-inner.new { animation: g2048-appear 140ms ease-out; }
+.g2048-tile-inner.merged { animation: g2048-pop 170ms ease-out; }
+@keyframes g2048-appear {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+@keyframes g2048-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+}
+.g2048-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: rgba(24, 28, 32, 0.82);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+    text-align: center;
+}
+.g2048-overlay .comment { margin: 0; }
+.g2048-overlay .final { color: var(--folder); font-size: 1.4em; font-weight: bold; }
+
 /* ---- Win celebration ---- */
 .confetti-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
 .confetti {
